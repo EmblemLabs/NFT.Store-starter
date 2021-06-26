@@ -1,11 +1,11 @@
-import { ReactNode } from 'react'
+import { ReactNode, useState } from 'react'
 import { Flex, IconButton, useDisclosure, Badge, LightMode, Stack, Box, Radio } from '@chakra-ui/core'
 import { useWeb3React } from '@web3-react/core'
 import dynamic from 'next/dynamic'
 
 import { CHAIN_ID_NAMES } from '../utils'
 import { useEagerConnect, useQueryParameters, useUSDETHPrice } from '../hooks'
-import { useTransactions, useFirstToken, useSecondToken, useShowUSD } from '../context'
+import { useTransactions, useFirstToken, useSecondToken, useShowUSD, useUser } from '../context'
 import ColorBox from './ColorBox'
 import Account from './Account'
 import { TransactionToast } from './TransactionToast'
@@ -13,6 +13,12 @@ import TokenBalance from './TokenBalance'
 import { WETH, ChainId, Token } from '@uniswap/sdk'
 import WalletConnect from './WalletConnect'
 import { QueryParameters } from '../constants'
+import { Coval, CovalTest, CovalTestMatic, CovalMatic, CovalxDai, CovalBSC, CovalFantom, DEFAULT_TOKENS } from '../tokens'
+
+import Gun from 'gun';
+import 'gun/sea'
+import { GunProvider } from 'react-gun';
+import GunComponent from './GunComponent'
 
 const Settings = dynamic(() => import('./Settings'))
 
@@ -35,6 +41,11 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
   const requiredChainId = queryParameters[QueryParameters.CHAIN]
 
   const USDETHPrice = useUSDETHPrice()
+  
+  const [gun, setGun] = useState(Gun(['https://mvp-gun.herokuapp.com/gun', 'http://localhost:8765/gun']))
+  // const [authed, setAuthed] = useState(null)
+
+  const [user, setUser] = useUser()
 
   return (
     <>
@@ -51,7 +62,7 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
         <Flex justifyContent="space-between" flexShrink={0} overflowX="auto" p="1rem">
           <Stack spacing={0} direction="row">
             <IconButton icon="settings" variant="ghost" onClick={onOpenSettings} aria-label="Settings" />
-            {!!USDETHPrice && (
+            {/* {!!USDETHPrice && (
               <Radio
                 isChecked={showUSD}
                 onChange={() => {}} // eslint-disable-line @typescript-eslint/no-empty-function
@@ -61,7 +72,7 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
               >
                 Show $ values
               </Radio>
-            )}
+            )} */}
           </Stack>
           <Account triedToEagerConnect={triedToEagerConnect} />
         </Flex>
@@ -86,13 +97,29 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
               </Box>
             )
           ) : (
-            [firstToken, secondToken]
+            [chainId == 1 ? Coval : 
+              chainId == 80001 ? CovalTestMatic : 
+              chainId == 137 ? CovalMatic : 
+              chainId == 100? CovalxDai : 
+              chainId == 56 ? CovalBSC :
+              chainId == 250 ? CovalFantom :
+              CovalTest,
+              firstToken ? (firstToken.symbol != 'Coval' ? firstToken : null) : null,
+              secondToken ? (secondToken.symbol != 'Coval' ? secondToken : null) : null,]
               .filter((token) => token)
               .filter((token) => !token?.equals(WETH[token.chainId]))
               .map((token) => (
-                <Box key={token?.address}>
-                  <TokenBalance token={token as Token} />
-                </Box>
+                !user ? (
+                  <GunProvider key="provider" gun={gun}>
+                  <GunComponent key="comp" onLoggedIn={()=>{
+                    // setAuthed(true)
+                  }} />
+                </GunProvider>
+                ) : (
+                  <Box key={token?.address}>
+                    <TokenBalance token={token as Token} />
+                  </Box>
+                )                
               ))
           )}
         </Stack>

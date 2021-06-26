@@ -9,6 +9,61 @@ export const DAI = new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC
 export const USDC = new Token(ChainId.MAINNET, '0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48', 6, 'USDC', 'USD Coin')
 export const UNI = new Token(ChainId.MAINNET, '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984', 18, 'UNI', 'Uniswap')
 
+export const Coval = new Token(
+  ChainId.MAINNET,
+  '0x3D658390460295FB963f54dC0899cfb1c30776Df',
+  8,
+  'Coval',
+  'Circuits of Value'
+)
+export const CovalTest = new Token(
+  ChainId.RINKEBY,
+  '0x44c1a9d7d1f932b4c2811a70edffdd6ae2eb60e6',
+  8,
+  'Coval',
+  'Circuits of Value'
+)
+
+export const CovalTestMatic = new Token(
+  ChainId.RINKEBY,
+  '0x5cCa9D75DF2dFC117855adD4DD45727dee5287EC',
+  8,
+  'Coval',
+  'Circuits of Value'
+)
+
+export const CovalMatic = new Token(
+  ChainId.RINKEBY,
+  '0x4597c8A59Ab28B36840B82B3A674994A279593D0',
+  8,
+  'Coval',
+  'Circuits of Value'
+)
+
+export const CovalxDai = new Token(
+  ChainId.RINKEBY,
+  '0x8b8407c6184f1f0Fd1082e83d6A3b8349cAcEd12',
+  8,
+  'Coval',
+  'Circuits of Value'
+)
+
+export const CovalBSC = new Token(
+  ChainId.RINKEBY,
+  '0xd15CeE1DEaFBad6C0B3Fd7489677Cc102B141464',
+  8,
+  'Coval',
+  'Circuits of Value'
+)
+
+export const CovalFantom = new Token(
+  ChainId.RINKEBY,
+  '0x8b8407c6184f1f0fd1082e83d6a3b8349caced12',
+  8,
+  'Coval',
+  'Circuits of Value'
+)
+
 export const DEFAULT_TOKENS = [
   ...Object.values(WETH),
 

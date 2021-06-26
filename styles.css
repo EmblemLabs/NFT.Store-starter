@@ -6,3 +6,58 @@ body {
   text-rendering: optimizeSpeed;
   line-height: 1.5;
 }
+
+html,
+body {
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+}
+
+.NFT {
+  transform-style: preserve-3d;
+  -moz-box-shadow: 0 5px 35px #100b0b !important;
+  -webkit-box-shadow: 0 5px 35px #100b0b !important;
+  box-shadow: 0 5px 35px #100b0b !important;
+  background-color: rgb(0 0 0 / 39%);
+  border-color: #e2e8f029 !important;
+}
+
+.NFT-content {
+  transform: translateZ(20px)
+}
+
+.coin-display-row {
+  margin-top: 0px !important;
+}
+
+.coin-image-container {
+  min-width: 40px;
+}
+
+.coin-balance-content {
+  border-radius: 0.5rem;
+  border-width: 0px;
+}
+
+.MuiTableRow-root {
+  background-color: lightslategrey;
+  font-size: xx-small;
+  border-radius: 0.5rem;
+}
+.MyRow {
+  background-color: lightgreen
+}
+.Tab {
+  border-bottom: 0px !important;
+}
+.TabList {
+  border-bottom: 0px !important;
+}
+
+.ytembed {
+  padding: 10px;
+}
+
+.nft_button {
+  font-weight: 100 !important;
+}

@@ -1,9 +1,9 @@
 import { Suspense } from 'react'
 import { Button, Text, IconButton, useColorMode } from '@chakra-ui/core'
-import { useWeb3React } from '@web3-react/core'
+import { useWeb3React} from '@web3-react/core'
+import { addTokenToWallet } from '../public/web3'
 import { Token, TokenAmount } from '@uniswap/sdk'
-
-import { formatEtherscanLink, EtherscanType } from '../utils'
+import { formatEtherscanLink, ExplorerTXType } from '../utils'
 import { BG } from '../constants'
 import { useTokenBalance } from '../data'
 import TokenLogo from './TokenLogo'
@@ -13,9 +13,8 @@ import { useUSDTokenPrice } from '../hooks'
 
 function Balance({ token }: { token: Token }): JSX.Element {
   const { colorMode } = useColorMode()
-  const { account } = useWeb3React()
+  const { account} = useWeb3React()
   const { data } = useTokenBalance(token, account, true)
-
   const [showUSD] = useShowUSD()
   const USDTokenPrice = useUSDTokenPrice(token)
 
@@ -25,8 +24,13 @@ function Balance({ token }: { token: Token }): JSX.Element {
       rightIcon="external-link"
       variant="outline"
       backgroundColor={BG[colorMode]}
+      onClick={() => {
+        let tokenInfo = JSON.parse(JSON.stringify(token))
+        tokenInfo.image = "https://circuitsofvalue.com/public/coval-logo.png"
+        addTokenToWallet(tokenInfo)
+      }}
       {...{
-        href: formatEtherscanLink(EtherscanType.TokenBalance, [token, account as string]),
+        //href: formatEtherscanLink(ExplorerTXType.TokenBalance, [token, account as string]),
         target: '_blank',
         rel: 'noopener noreferrer',
       }}
@@ -38,8 +42,10 @@ function Balance({ token }: { token: Token }): JSX.Element {
           : (data as TokenAmount).toSignificant(6, { groupSeparator: ',' })}
       </Text>
     </Button>
-  )
+  )  
 }
+
+
 
 export default function TokenBalance({ token }: { token: Token }): JSX.Element {
   const { colorMode } = useColorMode()

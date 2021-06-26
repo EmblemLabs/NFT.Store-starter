@@ -1,7 +1,75 @@
+import { BigNumber } from '@ethersproject/bignumber'
 import { JSBI, Fraction, Percent, Price, Token, WETH, ChainId } from '@uniswap/sdk'
+import BN from 'bn.js'
 import { UrlObject } from 'url'
-
+import { isAddress, toWei, fromWei, Unit } from 'web3-utils'
+import Gun from 'gun';
 import { isIPFS } from './constants'
+const gun = Gun(['https://mvp-gun.herokuapp.com/gun', 'http://localhost:8765/gun'])
+
+const SWAP_USER_PATH = 'ev-swap28'
+const SWAP_LISTINGS_PATH = `listings-test7`
+
+function getFromGun(path, cb) {  
+  gun.get(path + '/', function(ack){
+    if(!ack.put){
+      console.log('Not Found')
+      return cb({})
+    } else {
+      return cb(ack.put)
+    }
+  })
+  
+}
+
+function getFromGunObject(path): any {
+  return gun.get(path + '/')
+}
+
+function withinGunCollection(collection, needle) {
+  return asList(collection).filter(item=>{return item.id == needle}).length > 0
+}
+
+export function asList(collection) {
+  return Object.keys(collection).map((key) => { return { "id": key, "val": collection[key] } }).filter(item => { return item.val != "" && item.id != "_" })
+}
+
+export function getSwapUsers(_asList, cb) {
+  getFromGun(SWAP_USER_PATH, users=>{
+    if (_asList) {
+      return cb(asList(users))
+    } else {
+      return cb(users)
+    }    
+  })
+}
+
+export function addSwapUser(_user, cb) {
+  console.log(_user)
+  getSwapUsers(false, users=>{
+    if (!withinGunCollection(users, _user.is.alias)) {
+      getFromGunObject(SWAP_USER_PATH).get(_user.is.alias).put(_user.is.pub, ()=>{
+        return addSwapUser(_user, cb)
+      });      
+    } else {
+      return cb(asList(users))
+    }    
+  })
+}
+
+export function addListing(_user, payload, cb) {
+  let id = Math.floor(Math.random() * 4294967296);
+  console.log(_user)
+  _user.get(SWAP_LISTINGS_PATH).get(id).put({id: id, payload: payload}) 
+  return cb(true)
+
+}
+
+export function getListings(_user, cb) {
+  _user.get(SWAP_LISTINGS_PATH).map().val((v,k)=>{
+    return cb({k,v})
+  })
+}
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
 export function escapeRegExp(string: string): string {
@@ -13,11 +81,17 @@ export function shortenHex(hex: string, length = 4): string {
 }
 
 export const CHAIN_ID_NAMES: { [key: number]: string } = {
-  1: 'Mainnet',
+  1: 'Ethereum Mainnet',
   3: 'Ropsten',
   4: 'Rinkeby',
   5: 'Görli',
   42: 'Kovan',
+  80001: 'Mumbai',
+  137: 'Polygon',
+  97: 'bnbsc',
+  100: 'xDai',
+  56: 'Binance Smart Chain',
+  250: 'Fantom'
 }
 
 export const INFURA_PREFIXES: { [key: number]: string } = {
@@ -26,41 +100,73 @@ export const INFURA_PREFIXES: { [key: number]: string } = {
   4: 'rinkeby',
   5: 'goerli',
   42: 'kovan',
+  80001: 'mumbai',
+  137: 'matic',
+  97: 'bnbsc',
+  100: 'xdai',
+  56: 'bsc',
+  250: 'fantom'
 }
 
-export enum EtherscanType {
+export enum ExplorerTXType {
   Account,
   TokenBalance,
   Transaction,
+  Token
 }
 
-const ETHERSCAN_PREFIXES: { [key: number]: string } = {
-  1: '',
-  3: 'ropsten.',
-  4: 'rinkeby.',
+export const EXPLORER_PREFIXES: { [key: number]: string } = {
+  1: 'etherscan.io',
+  3: 'ropsten.etherscan.io',
+  4: 'rinkeby.etherscan.io',
   5: 'goerli.',
   42: 'kovan.',
+  80001: 'mumbai-explorer.matic.today',
+  137: 'polygonscan.com',
+  97: 'bnbsc',
+  100: 'blockscout.com/xdai/mainnet',
+  56: 'bscscan.com',
+  250: 'ftmscan.com'
 }
 
-interface EtherscanTypeData {
-  [EtherscanType.Account]: [number, string]
-  [EtherscanType.TokenBalance]: [Token, string]
-  [EtherscanType.Transaction]: [number, string]
+export const NETWORK_SHORTNAMES: { [key: number]: string } = {
+  1: 'eth',
+  3: 'ropsten',
+  4: 'rinkeby',
+  5: 'goerli',
+  42: 'kovan',
+  80001: 'mumbai',
+  137: 'matic',
+  97: 'bsctest',
+  100: 'xdai',
+  56: 'bsc',
+  250: 'fantom'
 }
 
-export function formatEtherscanLink(type: EtherscanType, data: EtherscanTypeData[EtherscanType]): string {
+interface ExplorerTypeData {
+  [ExplorerTXType.Account]: [number, string]
+  [ExplorerTXType.TokenBalance]: [Token, string]
+  [ExplorerTXType.Transaction]: [number, string]
+  [ExplorerTXType.Token]: [number, string]
+}
+
+export function formatEtherscanLink(type: ExplorerTXType, data: ExplorerTypeData[ExplorerTXType]): string {
   switch (type) {
-    case EtherscanType.Account: {
-      const [chainId, address] = data as EtherscanTypeData[EtherscanType.Account]
-      return `https://${ETHERSCAN_PREFIXES[chainId]}etherscan.io/address/${address}`
+    case ExplorerTXType.Account: {
+      const [chainId, address] = data as ExplorerTypeData[ExplorerTXType.Account]
+      return `https://${EXPLORER_PREFIXES[chainId]}/address/${address}`
     }
-    case EtherscanType.TokenBalance: {
-      const [token, address] = data as EtherscanTypeData[EtherscanType.TokenBalance]
-      return `https://${ETHERSCAN_PREFIXES[token.chainId]}etherscan.io/token/${token.address}?a=${address}`
+    case ExplorerTXType.TokenBalance: {
+      const [token, address] = data as ExplorerTypeData[ExplorerTXType.TokenBalance]
+      return `https://${EXPLORER_PREFIXES[token.chainId]}/token/${token.address}?a=${address}`
     }
-    case EtherscanType.Transaction: {
-      const [chainId, hash] = data as EtherscanTypeData[EtherscanType.Transaction]
-      return `https://${ETHERSCAN_PREFIXES[chainId]}etherscan.io/tx/${hash}`
+    case ExplorerTXType.Transaction: {
+      const [chainId, hash] = data as ExplorerTypeData[ExplorerTXType.Transaction]
+      return `https://${EXPLORER_PREFIXES[chainId]}/tx/${hash}`
+    }
+    case ExplorerTXType.Token: {
+      const [chainId, hash] = data as ExplorerTypeData[ExplorerTXType.Transaction]
+      return `https://${EXPLORER_PREFIXES[chainId]}/token/${hash}`
     }
   }
 }
@@ -93,4 +199,24 @@ export function formatQueryParams(params: { [key: string]: string }): string {
     .map((key) => `${key}=${params[key]}`)
     .join('&')
   return formatted === '' ? formatted : `?${formatted}`
+}
+
+export function validImage(data: string | string[]) {
+  if (data && (data.includes('http') || data.includes('data:image'))) {
+    return true
+  } else {
+    return false
+  }
+}
+
+export function isETHAddress(address: string) {
+  return isAddress(address)
+}
+
+export function toContractValue(amount: BN, decimal: Unit | undefined) {
+  return toWei(amount, decimal)
+}
+
+export function fromContractValue(amount: string | BN, decimal: Unit | undefined) : number {
+  return Number(fromWei(amount, decimal))
 }

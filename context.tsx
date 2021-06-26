@@ -20,6 +20,7 @@ enum LocalStorageKeys {
   Slippage = 'slippage',
   Transactions = 'transactions',
   Tokens = 'tokens',
+  User = 'user',
 }
 
 const NO_VERSION = -1
@@ -100,6 +101,7 @@ const HypertextContext = createContext<
       slippage: number
       transactions: Transaction[]
       tokens: Token[]
+      user: any | undefined
     },
     {
       setFirstToken: Dispatch<SetStateAction<Token | undefined>>
@@ -110,6 +112,7 @@ const HypertextContext = createContext<
       setSlippage: Dispatch<SetStateAction<number>>
       setTransactions: Dispatch<SetStateAction<Transaction[]>>
       setTokens: Dispatch<SetStateAction<Token[]>>
+      setUser: Dispatch<SetStateAction<any | undefined>>
     }
   ]
 >([{}, {}] as any) // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -151,11 +154,13 @@ export default function Provider({ children }: { children: ReactNode }): JSX.Ele
     }
   )
 
+  const [user, setUser] = useState<any | undefined>(null)
+
   return (
     <HypertextContext.Provider
       value={useMemo(
         () => [
-          { firstToken, secondToken, showUSD, approveMax, deadline, slippage, transactions, tokens },
+          { firstToken, secondToken, showUSD, approveMax, deadline, slippage, transactions, tokens, user },
           {
             setFirstToken,
             setSecondToken,
@@ -165,6 +170,7 @@ export default function Provider({ children }: { children: ReactNode }): JSX.Ele
             setSlippage,
             setTransactions,
             setTokens,
+            setUser,
           },
         ],
         [
@@ -176,6 +182,7 @@ export default function Provider({ children }: { children: ReactNode }): JSX.Ele
           slippage,
           transactions,
           tokens,
+          user,
           setFirstToken,
           setSecondToken,
           setShowUSD,
@@ -184,6 +191,7 @@ export default function Provider({ children }: { children: ReactNode }): JSX.Ele
           setSlippage,
           setTransactions,
           setTokens,
+          setUser,
         ]
       )}
     >
@@ -223,6 +231,11 @@ export function useDeadline(): [number, ReturnType<typeof useHypertextContext>[1
 export function useSlippage(): [number, ReturnType<typeof useHypertextContext>[1]['setSlippage']] {
   const [{ slippage }, { setSlippage }] = useHypertextContext()
   return [slippage, setSlippage]
+}
+
+export function useUser(): [any, ReturnType<typeof useHypertextContext>[1]['setUser']] {
+  const [{ user }, { setUser }] = useHypertextContext()
+  return [user, setUser]
 }
 
 export function useTransactions(): [

@@ -19,6 +19,7 @@ import '@reach/combobox/styles.css'
 import { QueryParameters } from '../constants'
 import Loading from '../components/Loading'
 import Head from 'next/head'
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
