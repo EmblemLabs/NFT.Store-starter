@@ -5,7 +5,7 @@ import Refreshing from './Refreshing'
 import { useRouter } from 'next/router'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { addListing, addSwapUser, getListings, getSwapUsers, subscribeToListings } from '../utils'
+import { addListing, addSwapUser, getListings, getSwapUsers } from '../utils'
 import { useUser } from '../context'
 // import Gun from 'gun';
 // import 'gun/sea'
