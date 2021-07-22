@@ -11,7 +11,17 @@ import {
 } from 'react'
 import { Token } from '@uniswap/sdk'
 
+declare global {
+  interface Window { gun: any; }
+}
+
+
+
 import { DEFAULT_APPROVE_MAX, DEFAULT_DEADLINE, DEFAULT_SLIPPAGE } from './constants'
+import { getGun } from './utils'
+
+let gunInstance = getGun()
+// window.gun = gunInstance
 
 enum LocalStorageKeys {
   Version = 'version',
@@ -52,6 +62,7 @@ function useLocalStorage<T, S = T>(
   useEffect(() => {
     try {
       window.localStorage.setItem(key, JSON.stringify(serialize(value)))
+      window.gun = gunInstance
     } catch {}
   }, [key, serialize, value])
 

@@ -6,13 +6,15 @@ import Icon from "../Icon";
 import Card from "../Card";
 
 // data
-import { bids } from "../../mocks/bids";
+// import { bids } from "../../mocks/bids";
+let bids
 
 const SlickArrow = ({ currentSlide, slideCount, children, ...props }) => (
   <button {...props}>{children}</button>
 );
 
-const Hot = ({ classSection }) => {
+const Hot = ({ classSection, listings }) => {
+  bids = listings
   const settings = {
     infinite: false,
     speed: 500,

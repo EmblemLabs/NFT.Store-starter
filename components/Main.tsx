@@ -5,7 +5,7 @@ import Refreshing from './Refreshing'
 import { useRouter } from 'next/router'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { addListing, addSwapUser, getListings, getSwapUsers } from '../utils'
+import { addListing, addSwapUser, getListings, getSwapUsers, getPaths } from '../utils'
 import { useUser } from '../context'
 import HotBid from "./HotBid";
 
@@ -19,6 +19,7 @@ export default function Main() {
   const [post, setPost] = useState('')
   const [listings, setListings] = useState([])
   const [listingSub, setListingSub] = useState(false)
+  const [paths, setPaths] = useState(getPaths())
 
   const [acct, setAcct] = useState('')
   useEffect(() => {
@@ -41,28 +42,25 @@ export default function Main() {
   })
 
   useEffect(()=>{
-    if (user && !listingSub) {
-      console.log("Subscribing")
+    if (!listingSub && paths) {
+      console.log("Subscribing to Listings")
       setListingSub(true)
-      getListings(user, (result)=>{
-        if (listings && !(listings.filter((item)=>{return item.k == result.k}).length > 0)) {
-          console.log(result)
-          listings.push(result)
-          let newListings = JSON.parse(JSON.stringify(listings))
-          setListings(newListings)
-        }        
+      getListings((result)=>{
+          setListings(result)               
       })
     }
   })
 
   useEffect(() => {
-    if (!user && !users && !state.loaded) {
+    if (!user && !users && !state.loaded) {      
       getSwapUsers(true, result=>{
         setUsers(result);
         setState({ loaded: true })
-      })
+      })   
     }
   })
+
+  
 
   useEffect(() => {
     if (!user && users && !state.loaded) {
@@ -115,16 +113,19 @@ export default function Main() {
             <Text>No Registered Users</Text>
           )}
 
-          {listings.length > 0 ? (
+          {/* {listings.length > 0 ? (
             <Text m={5} as={"h1"}> Posts </Text>
           ):null}
           {listings ? (
             listings.reverse().map(listing=>{
-              return (<Text key={listing.k}>entry: {listing.v.payload}</Text>)
+              return (
+                // <Text key={listing.k}>entry: {listing.v.payload}</Text>
+                <Image src={listing.image_url} />
+              )
             })
-          ) : null}
+          ) : null} */}
 
-          <HotBid classSection="section" />
+          <HotBid classSection="section" listings={listings} />
 
         </Box>
       </Flex>

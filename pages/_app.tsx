@@ -66,7 +66,7 @@ export default class App extends NextApp {
     return (
       <>
         <Head>
-          <title key="title">Hypertext</title>
+          <title key="title">NFT²NFT by Emblem.finance</title>
         </Head>
         <Base />
         <Web3ReactProvider getLibrary={getLibrary}>

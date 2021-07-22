@@ -17,14 +17,7 @@ import { Coval, CovalTest, CovalTestMatic, CovalMatic, CovalxDai, CovalBSC, Cova
 
 import { GunProvider } from 'react-gun';
 import GunComponent from './GunComponent'
-
-declare global {
-  interface Window { gun: any; }
-}
-
 let gunInstance = getGun()
-window.gun = gunInstance
-
 
 const Settings = dynamic(() => import('./Settings'))
 

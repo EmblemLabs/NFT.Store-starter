@@ -154,7 +154,7 @@ export default function Settings({ isOpen, onClose }: { isOpen: boolean; onClose
               onClick={(): void => {
                 try {
                   // eslint-disable-next-line
-                  ;(window.navigator as any).share({ title: 'Hypertext', url: permalink }).catch(() => {})
+                  ;(window.navigator as any).share({ title: 'NFT²NFT By Emblem.finance', url: permalink }).catch(() => {})
                 } catch {
                   copyWithFlag(permalink as string)
                 }

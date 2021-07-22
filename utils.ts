@@ -5,11 +5,19 @@ import { UrlObject } from 'url'
 import { isAddress, toWei, fromWei, Unit } from 'web3-utils'
 
 import Gun from 'gun';
+
+require('gun/lib/open')
+require('gun/lib/path')
+require('gun/lib/unset')
+
 import 'gun/sea'
 
 import { isIPFS } from './constants'
 
-const gun = Gun(['https://emblem-gun.herokuapp.com/gun'])
+// const gun = Gun(['https://emblem-gun.herokuapp.com/gun'])
+let gun = Gun(['https://emblem-gun.herokuapp.com/gun']);
+let API = 'https://gun-api-ev.herokuapp.com'
+let PATHS: {root: string, data: never, blockchains: never}
 
 export function getGun() {
   return gun
@@ -28,8 +36,11 @@ function getFromGun(path, cb) {
       return cb(ack.put)
     }
   })
-  
 }
+
+getRemoteGunPaths(_paths=>{
+  PATHS = _paths
+})
 
 function getFromGunObject(path): any {
   return gun.get(path + '/')
@@ -71,13 +82,73 @@ export function addListing(_user, payload, cb) {
   console.log(_user)
   _user.get(SWAP_LISTINGS_PATH).get(id).put({id: id, payload: payload}) 
   return cb(true)
-
 }
 
-export function getListings(_user, cb) {
-  _user.get(SWAP_LISTINGS_PATH).map().val((v,k)=>{
-    return cb({k,v})
+export function getListings(cb) {
+  // _user.get(SWAP_LISTINGS_PATH).map().val((v,k)=>{
+  //   return cb({k,v})
+  // })
+  gun.get("~@"+PATHS.root)
+    .map()
+    .get(PATHS.data)
+    .get(PATHS.blockchains)
+    .map()
+    .get("contracts")
+    .open(item => {
+    let halfMocked = []
+    let forSale = getGunCollectionAsList(item)
+                .filter(item=>{return item['For Sale'] == true})
+    forSale.forEach(item=>{
+      halfMocked.push( {
+        title: "Amazing digital art",
+        price: "2.45 ETH",
+        highestBid: "0.001 ETH",
+        counter: "3 in stock",
+        bid: 'New bid <span role="img" aria-label="fire">🔥</span>',
+        image: item.image_url,
+        image2x: item.image_original_url,
+        category: "green",
+        categoryText: "purchasing !",
+        url: "/",
+        users: [
+          {
+            avatar: "/images/content/avatar-1.jpg",
+          },
+          {
+            avatar: "/images/content/avatar-3.jpg",
+          },
+          {
+            avatar: "/images/content/avatar-4.jpg",
+          },
+        ],
+      })
+    })
+    return cb(halfMocked)
   })
+}
+
+function getGunCollectionAsList(collection) {
+  let list = []
+  Object.keys(collection).forEach(k => {
+    list.push(collection[k])        
+  })
+  return list
+}
+
+async function getRemoteGunPaths(cb) { 
+    const response = await fetch(API + '/path', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+    const jsonData = await response.json()
+    return cb(jsonData)
+}
+
+export function getPaths() {
+  console.log('returning paths', PATHS)
+  return PATHS
 }
 
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions#Escaping
