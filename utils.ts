@@ -5,10 +5,10 @@ import { UrlObject } from 'url'
 import { isAddress, toWei, fromWei, Unit } from 'web3-utils'
 import Gun from 'gun';
 import { isIPFS } from './constants'
-const gun = Gun(['https://mvp-gun.herokuapp.com/gun', 'http://localhost:8765/gun'])
+const gun = Gun(['https://emblem-gun.herokuapp.com/gun'])
 
-const SWAP_USER_PATH = 'ev-swap28'
-const SWAP_LISTINGS_PATH = `listings-test7`
+const SWAP_USER_PATH = 'ev-swap35'
+const SWAP_LISTINGS_PATH = `listings-test10`
 
 function getFromGun(path, cb) {  
   gun.get(path + '/', function(ack){
