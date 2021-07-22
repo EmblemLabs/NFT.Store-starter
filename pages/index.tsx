@@ -8,9 +8,9 @@ export default function Redirect(): null {
 
   useEffect(() => {
     if (isIPFS) {
-      window.location.replace('./buy.html')
+      window.location.replace('./main.html')
     } else {
-      replace('/buy')
+      replace('/main')
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 

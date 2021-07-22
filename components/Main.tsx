@@ -7,14 +7,9 @@ import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
 import { addListing, addSwapUser, getListings, getSwapUsers } from '../utils'
 import { useUser } from '../context'
-// import Gun from 'gun';
-// import 'gun/sea'
-// import { GunProvider } from 'react-gun';
-// import GunComponent from './GunComponent'
-// import '../extensions/sea';
+import HotBid from "./HotBid";
 
-
-export default function Featured() {
+export default function Main() {
   const { query } = useRouter()
   const { account, chainId } = useWeb3React()
   const [state, setState] = useState({ loaded: false })
@@ -128,6 +123,8 @@ export default function Featured() {
               return (<Text key={listing.k}>entry: {listing.v.payload}</Text>)
             })
           ) : null}
+
+          <HotBid classSection="section" />
 
         </Box>
       </Flex>

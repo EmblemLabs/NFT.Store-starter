@@ -5,6 +5,8 @@ import { ThemeProvider, CSSReset, ColorModeProvider } from '@chakra-ui/core'
 import { Web3Provider } from '@ethersproject/providers'
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core'
 
+import "../styles/app.sass";
+
 import theme from '../theme'
 import { useQueryParameters } from '../hooks'
 import Base from '../components/Base'

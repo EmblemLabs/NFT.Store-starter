@@ -3,12 +3,21 @@ import { JSBI, Fraction, Percent, Price, Token, WETH, ChainId } from '@uniswap/s
 import BN from 'bn.js'
 import { UrlObject } from 'url'
 import { isAddress, toWei, fromWei, Unit } from 'web3-utils'
+
 import Gun from 'gun';
+import 'gun/sea'
+
 import { isIPFS } from './constants'
+
 const gun = Gun(['https://emblem-gun.herokuapp.com/gun'])
 
-const SWAP_USER_PATH = 'ev-swap35'
+export function getGun() {
+  return gun
+}
+
+const SWAP_USER_PATH = 'ev-swap40'
 const SWAP_LISTINGS_PATH = `listings-test10`
+
 
 function getFromGun(path, cb) {  
   gun.get(path + '/', function(ack){

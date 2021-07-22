@@ -3,7 +3,7 @@ import { Flex, IconButton, useDisclosure, Badge, LightMode, Stack, Box, Radio } 
 import { useWeb3React } from '@web3-react/core'
 import dynamic from 'next/dynamic'
 
-import { CHAIN_ID_NAMES } from '../utils'
+import { CHAIN_ID_NAMES, getGun } from '../utils'
 import { useEagerConnect, useQueryParameters, useUSDETHPrice } from '../hooks'
 import { useTransactions, useFirstToken, useSecondToken, useShowUSD, useUser } from '../context'
 import ColorBox from './ColorBox'
@@ -15,10 +15,16 @@ import WalletConnect from './WalletConnect'
 import { QueryParameters } from '../constants'
 import { Coval, CovalTest, CovalTestMatic, CovalMatic, CovalxDai, CovalBSC, CovalFantom, DEFAULT_TOKENS } from '../tokens'
 
-import Gun from 'gun';
-import 'gun/sea'
 import { GunProvider } from 'react-gun';
 import GunComponent from './GunComponent'
+
+declare global {
+  interface Window { gun: any; }
+}
+
+let gunInstance = getGun()
+window.gun = gunInstance
+
 
 const Settings = dynamic(() => import('./Settings'))
 
@@ -42,7 +48,7 @@ export default function Layout({ children }: { children: ReactNode }): JSX.Eleme
 
   const USDETHPrice = useUSDETHPrice()
   
-  const [gun, setGun] = useState(Gun(['https://mvp-gun.herokuapp.com/gun', 'http://localhost:8765/gun']))
+  const [gun, setGun] = useState(gunInstance)
   // const [authed, setAuthed] = useState(null)
 
   const [user, setUser] = useUser()
