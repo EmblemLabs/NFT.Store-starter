@@ -5,9 +5,10 @@ import Refreshing from './Refreshing'
 import { useRouter } from 'next/router'
 import { useWeb3React } from '@web3-react/core'
 import { useEffect, useState } from 'react'
-import { addListing, addSwapUser, getListings, getSwapUsers, getPaths } from '../utils'
+import { addListing, addSwapUser, getListings, getSwapUsers, getPaths, getAsks, getGunCollectionAsList } from '../utils'
 import { useUser } from '../context'
 import HotBid from "./HotBid";
+import Popular from "./Popular";
 
 export default function Main() {
   const { query } = useRouter()
@@ -20,6 +21,7 @@ export default function Main() {
   const [listings, setListings] = useState([])
   const [listingSub, setListingSub] = useState(false)
   const [paths, setPaths] = useState(getPaths())
+  const [asks, setAsks] = useState(null)
 
   const [acct, setAcct] = useState('')
   useEffect(() => {
@@ -32,18 +34,18 @@ export default function Main() {
     }
   }, [account, acct])
 
-  useEffect(() => {
-    if (user && users && (users.filter(_user=>{return _user.id == user.is.alias}).length < 1)) {
-      addSwapUser(user, result=>{
-        setUsers(result);
-        setState({ loaded: true })
-      })
-    }
-  })
+  // useEffect(() => {
+  //   if (user && users && (users.filter(_user=>{return _user.id == user.is.alias}).length < 1)) {
+  //     addSwapUser(user, result=>{
+  //       setUsers(result);
+  //       setState({ loaded: true })
+  //     })
+  //   }
+  // })
 
   useEffect(()=>{
     if (!listingSub && paths) {
-      console.log("Subscribing to Listings")
+      // console.log("Subscribing to Listings")
       setListingSub(true)
       getListings((result)=>{
           setListings(result)               
@@ -52,10 +54,20 @@ export default function Main() {
   })
 
   useEffect(() => {
-    if (!user && !users && !state.loaded) {      
+    if (!user && !users && !state.loaded && paths) {      
       getSwapUsers(true, result=>{
         setUsers(result);
         setState({ loaded: true })
+      })   
+    }
+  })
+
+  useEffect(() => {
+    if (user && !asks) {      
+      getAsks(result=>{
+        // console.log("asks", result)
+        setAsks(result);
+        // setState({ loaded: true })
       })   
     }
   })
@@ -82,50 +94,21 @@ export default function Main() {
       
       <Flex w="100%" justify="center" flexWrap="wrap" mt={10}>
         <Box w={"100%"}  textAlign="center">
-          {user? (
-            <>
-              <Text>Authenticated User: {user.is.alias}</Text>
-              <HStack align="center">
-                <Input value={post} onChange={event => setPost(event.target.value)} m={5} type="text" id="post" />
-                <Button onClick={()=>{
-                    addListing(user, post, (_listings)=>{
-                      console.log('listings returned to featured', _listings)
-                      // listings.get('listings-test1').map().val((k,v)=>{console.log(k,v)})
-                      setPost('')
-                    })
-                }} mr={5}>Post</Button>
-              </HStack>
-              
-            </>
-          ) : (
-            <Text>No Authenticated User</Text>
-          )}
+
+          {users && users.length > 0 ? (
+            <Popular users={users} handleClick={(_asks)=>{
+              // console.log("Bubbling Up", _asks)
+              setAsks(getGunCollectionAsList(_asks))
+            }}/>
+          ) : null }
+          {asks && asks.length > 0 ?  (
+            <HotBid classSection="section" listings={asks} title="My Favorites" />
+          ) : null }
+          {listings.length > 0 ?  (
+            <HotBid classSection="section" listings={listings} />
+          ) : null }
+
           
-            <Text m={5} as={"h1"}>Registered Users</Text>
-
-          {users? (
-            users.map((_user, i)=>{
-              return(
-                <Text key={i}>{user && user.is.alias == _user.id ? ('Me:') : ('User:')} {_user.id}</Text>
-              )
-            })
-          ) : (
-            <Text>No Registered Users</Text>
-          )}
-
-          {/* {listings.length > 0 ? (
-            <Text m={5} as={"h1"}> Posts </Text>
-          ):null}
-          {listings ? (
-            listings.reverse().map(listing=>{
-              return (
-                // <Text key={listing.k}>entry: {listing.v.payload}</Text>
-                <Image src={listing.image_url} />
-              )
-            })
-          ) : null} */}
-
-          <HotBid classSection="section" listings={listings} />
 
         </Box>
       </Flex>

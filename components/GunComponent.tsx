@@ -3,7 +3,7 @@ import { useWeb3React } from '@web3-react/core';
 import React, { Component, useEffect, useState } from 'react';
 import { withGun } from 'react-gun';
 import { useUser } from '../context';
-import { getSwapUsers } from '../utils'
+import { getSwapUsers, getPaths } from '../utils'
 
 type GunProps = {
     gun: any,
@@ -38,10 +38,11 @@ function WithWeb3(props): JSX.Element {
     const getUser = async function () {
         setAuthenticated(true)
         let _user
-        _user = gun.user().auth(account, signature, res => {
+        let alias = account + ":" + getPaths().data
+        _user = gun.user().auth(alias, signature, res => {
             // console.log('-------- auth res -------', res)
             if (res.err) {
-                gun.user().create(account, signature, res => {
+                gun.user().create(alias, signature, res => {
                     // console.log('-------- create res -------', res)
                     getUser()
                 })
@@ -56,7 +57,7 @@ function WithWeb3(props): JSX.Element {
     const auth = () => {
         library
             .getSigner(account)
-            .signMessage('Auth: ' + account)
+            .signMessage('Verify: ' + account)
             .then((signature) => {
                 setSignature(signature)                
             })
@@ -85,7 +86,7 @@ function WithWeb3(props): JSX.Element {
         !authenticated ? (
             <Button key="login" mr={3} type="button" onClick={() => {
                 auth()
-            }}>{users && users.filter(_user=>{ return _user.id == account}).length < 1 ? ('Register') : ('Authenticate')}</Button>
+            }}>{users && users.filter(_user=>{ return _user.address == account}).length < 1 ? ('Register') : ('Authenticate')}</Button>
         ) : null
     )
 }

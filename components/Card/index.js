@@ -10,7 +10,7 @@ const Card = ({ className, item }) => {
   return (
     <div className={cn(styles.card, className)}>
       <div className={styles.preview}>
-        <img className={styles.img} srcSet={`${item.image_url} 2x`} src={item.image} alt="Card" />
+        <img className={styles.img} srcSet={`${item.image}`} src={item.image} alt="Card" />
         <div className={styles.control}>
           <div
             className={cn(

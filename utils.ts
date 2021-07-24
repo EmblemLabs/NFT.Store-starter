@@ -16,8 +16,8 @@ import { isIPFS } from './constants'
 
 // const gun = Gun(['https://emblem-gun.herokuapp.com/gun'])
 let gun = Gun(['https://emblem-gun.herokuapp.com/gun']);
-let API = 'https://gun-api-ev.herokuapp.com'
-let PATHS: {root: string, data: never, blockchains: never}
+let API = 'https://gun-api-ev.herokuapp.com'//'http://localhost:3001'//
+let PATHS: {root: string, data: never, blockchains: never, users: never}
 
 export function getGun() {
   return gun
@@ -55,13 +55,14 @@ export function asList(collection) {
 }
 
 export function getSwapUsers(_asList, cb) {
-  getFromGun(SWAP_USER_PATH, users=>{
-    if (_asList) {
-      return cb(asList(users))
-    } else {
-      return cb(users)
-    }    
-  })
+  gun.get("~@"+PATHS.root)
+    .map()
+    .get(PATHS.data)
+    .get(PATHS.users)
+    .open(users=>{
+      // console.log("users", users)
+      return cb(getGunCollectionAsList(users))
+    })
 }
 
 export function addSwapUser(_user, cb) {
@@ -85,9 +86,6 @@ export function addListing(_user, payload, cb) {
 }
 
 export function getListings(cb) {
-  // _user.get(SWAP_LISTINGS_PATH).map().val((v,k)=>{
-  //   return cb({k,v})
-  // })
   gun.get("~@"+PATHS.root)
     .map()
     .get(PATHS.data)
@@ -95,39 +93,26 @@ export function getListings(cb) {
     .map()
     .get("contracts")
     .open(item => {
-    let halfMocked = []
     let forSale = getGunCollectionAsList(item)
                 .filter(item=>{return item['For Sale'] == true})
-    forSale.forEach(item=>{
-      halfMocked.push( {
-        title: "Amazing digital art",
-        price: "2.45 ETH",
-        highestBid: "0.001 ETH",
-        counter: "3 in stock",
-        bid: 'New bid <span role="img" aria-label="fire">🔥</span>',
-        image: item.image_url,
-        image2x: item.image_original_url,
-        category: "green",
-        categoryText: "purchasing !",
-        url: "/",
-        users: [
-          {
-            avatar: "/images/content/avatar-1.jpg",
-          },
-          {
-            avatar: "/images/content/avatar-3.jpg",
-          },
-          {
-            avatar: "/images/content/avatar-4.jpg",
-          },
-        ],
-      })
-    })
-    return cb(halfMocked)
+    return cb(forSale)
   })
 }
 
-function getGunCollectionAsList(collection) {
+export function getAsks(cb){
+  console.log("Asks?")
+  let _user: any = gun.user()
+  if (_user.is) {
+    gun.user().get("asks").open(asks=>{
+      asks = getGunCollectionAsList(asks)
+      return cb(asks)
+    })    
+  } else {
+    return cb(false)
+  }
+}
+
+export function getGunCollectionAsList(collection) {
   let list = []
   Object.keys(collection).forEach(k => {
     list.push(collection[k])        
@@ -147,7 +132,7 @@ async function getRemoteGunPaths(cb) {
 }
 
 export function getPaths() {
-  console.log('returning paths', PATHS)
+  // console.log('returning paths', PATHS)
   return PATHS
 }
 

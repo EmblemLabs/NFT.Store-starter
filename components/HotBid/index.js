@@ -7,14 +7,41 @@ import Card from "../Card";
 
 // data
 // import { bids } from "../../mocks/bids";
-let bids
+// let bids
 
 const SlickArrow = ({ currentSlide, slideCount, children, ...props }) => (
   <button {...props}>{children}</button>
 );
 
-const Hot = ({ classSection, listings }) => {
-  bids = listings
+const Hot = ({ classSection, listings, title = "Hot Items" }) => {
+  let halfMocked = []
+  listings.forEach(listing=>{
+    if (!listing.animation_url)
+        halfMocked.push( {
+          title: listing.name,
+          price: "2.45 ETH",
+          highestBid: "0.001 ETH",
+          counter: "3 in stock",
+          bid: 'New offer <span role="img" aria-label="fire">🔥</span>',
+          image: listing.image_url ,
+          image2x: listing.image_original_url,
+          category: "green",
+          categoryText: "ART",
+          url: "/",
+          users: [
+            {
+              avatar: "/images/content/avatar-1.jpg",
+            },
+            {
+              avatar: "/images/content/avatar-3.jpg",
+            },
+            {
+              avatar: "/images/content/avatar-4.jpg",
+            },
+          ],
+        })
+  })
+  // bids = listings
   const settings = {
     infinite: false,
     speed: 500,
@@ -57,13 +84,15 @@ const Hot = ({ classSection, listings }) => {
     <div className={cn(classSection, styles.section)}>
       <div className={cn("container", styles.container)}>
         <div className={styles.wrapper}>
-          <h3 className={cn("h3", styles.title)}>Hot Items</h3>
+          <h3 className={cn("h3", styles.title)}>{title}</h3>
           <div className={styles.inner}>
-            <Slider className="bid-slider" {...settings}>
-              {bids.map((x, index) => (
-                <Card key={index} className={styles.card} item={x} />
-              ))}
-            </Slider>
+            {halfMocked.length > 0 ? (
+              <Slider className="bid-slider" {...settings}>
+                {halfMocked.map((x, index) => (
+                  <Card key={index} className={styles.card} item={x} />
+                ))}
+              </Slider>
+            ) : null }
           </div>
         </div>
       </div>
